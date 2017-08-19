@@ -3,9 +3,7 @@ package com.mrshamshir.a2dhelicoptergame;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 
-/**
- * Created by MRSH74 on 8/19/2017.
- */
+
 
 public class TopBorder extends GameObject {
     private Bitmap image;
