@@ -2,10 +2,6 @@ package com.mrshamshir.a2dhelicoptergame;
 
 import android.graphics.Bitmap;
 
-/**
- * Created by MRSH74 on 8/12/2017.
- */
-
 public class Animation {
     private Bitmap[] frames ;
     private int currentFrame ;

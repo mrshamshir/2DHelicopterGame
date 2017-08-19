@@ -2,10 +2,6 @@ package com.mrshamshir.a2dhelicoptergame;
 
 import android.graphics.Rect;
 
-/**
- * Created by MRSH74 on 8/12/2017.
- */
-
 public abstract class GameObject {
     protected int x ;
     protected int y ;

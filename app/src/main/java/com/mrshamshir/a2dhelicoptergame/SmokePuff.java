@@ -4,7 +4,7 @@ package com.mrshamshir.a2dhelicoptergame;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.test.suitebuilder.annotation.Smoke;
+
 
 public class SmokePuff extends GameObject {
 

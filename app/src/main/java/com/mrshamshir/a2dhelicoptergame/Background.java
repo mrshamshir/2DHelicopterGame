@@ -3,11 +3,6 @@ package com.mrshamshir.a2dhelicoptergame;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 
-import java.util.BitSet;
-
-/**
- * Created by MRSH74 on 8/12/2017.
- */
 
 public class Background {
     private Bitmap image ;
