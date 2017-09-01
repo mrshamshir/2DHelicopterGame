@@ -4,17 +4,13 @@ import android.graphics.Canvas;
 import android.provider.Settings;
 import android.view.SurfaceHolder;
 
-/**
- * Created by MRSH74 on 8/4/2017.
- */
 
 public class MainThread extends Thread {
     private int FPS = 30;
-    private double avarageFPS;
     private SurfaceHolder surfaceHolder;
     private GamePanel gamePanel;
     private boolean running;
-    public static Canvas canvas;
+    private static Canvas canvas;
 
 
     public MainThread(SurfaceHolder surfaceHolder, GamePanel gamePanel) {
@@ -28,7 +24,6 @@ public class MainThread extends Thread {
         long startTime;
         long timeMillis;
         long waitTime;
-        long totalTime = 0;
         int frameCount = 0;
         long targetTime = 1000 / FPS;
 
@@ -44,30 +39,28 @@ public class MainThread extends Thread {
                     this.gamePanel.draw(canvas);
                 }
             } catch (Exception e) {
-            }
-            finally {
-                if ( canvas != null){
-                    try{
+            } finally {
+                if (canvas != null) {
+                    try {
                         surfaceHolder.unlockCanvasAndPost(canvas);
-                    } catch (Exception e){e.printStackTrace();}
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
 
             timeMillis = (System.nanoTime() - startTime) / 1000000;
-            waitTime = targetTime - timeMillis ;
+            waitTime = targetTime - timeMillis;
 
-            try{
+            try {
                 this.sleep(waitTime);
-            }catch (Exception e){}
+            } catch (Exception e) {
+            }
 
-            totalTime += System.nanoTime() - startTime ;
-            frameCount++ ;
-            if ( frameCount == FPS){
-                avarageFPS = 1000 / ((totalTime / frameCount)/1000000);
-                frameCount = 0 ;
-                totalTime = 0 ;
-//                System.out.println(avarageFPS);
+            frameCount++;
+            if (frameCount == FPS) {
+                frameCount = 0;
             }
 
         }

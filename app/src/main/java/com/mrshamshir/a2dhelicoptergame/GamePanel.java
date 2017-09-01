@@ -10,7 +10,6 @@ import android.graphics.Typeface;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.widget.ArrayAdapter;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -39,18 +38,23 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     private boolean newGameCreated;
 
     //increase to slow down difficulty progression , decrease to speed up difficulty progression
-    private int progressDenom = 20;
+    private int progressDenominator = 20;
 
     private Explosion explosion;
     private long startReset;
     private boolean reset;
     private boolean disappear;
     private boolean started;
-    private int best;
+    private int bestScore;
 
+    private HighScoreListener mHighScoreListener;
 
-    public GamePanel(Context context) {
+    public GamePanel(Context context, int best) {
         super(context);
+
+        this.bestScore = best;
+
+        this.mHighScoreListener = null;
 
         //add the callback to the surfaceHolder to intercept events
         getHolder().addCallback(this);
@@ -58,6 +62,11 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
         //make focusable so it can handle events
         setFocusable(true);
+    }
+
+    // Listener interface for hosting activity to save score in shared preferences
+    public interface HighScoreListener {
+        void onHighScoreUpdated(int best);
     }
 
     @Override
@@ -81,7 +90,6 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
     }
 
     @Override
@@ -111,6 +119,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             if (player.isPlaying()) {
                 if (!started)
                     started = true;
+
                 reset = false;
                 player.setUp(true);
             }
@@ -145,22 +154,26 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             //max and min border heart are updated , and the border switched direction when either max or
             //min is met
 
-            maxBorderHeight = 30 + player.getScore() / progressDenom;
+            maxBorderHeight = 30 + player.getScore() / progressDenominator;
             //cap max border height so that borders can only take up a total of 1/2 the screen
             if (maxBorderHeight > HEIGHT / 4)
                 maxBorderHeight = HEIGHT / 4;
-            minBorderHeight = 5 + player.getScore() / progressDenom;
+            minBorderHeight = 5 + player.getScore() / progressDenominator;
 
             //check bottom border collision
             for (int i = 0; i < botBorders.size(); i++) {
-                if (collision(botBorders.get(i), player))
+                if (collision(botBorders.get(i), player)) {
                     player.setPlaying(false);
+                    break;
+                }
             }
 
             //check top border collision
             for (int i = 0; i < topBorders.size(); i++) {
-                if (collision(topBorders.get(i), player))
+                if (collision(topBorders.get(i), player)) {
                     player.setPlaying(false);
+                    break;
+                }
             }
 
             //update top border
@@ -247,10 +260,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         final float scaleFactorX = getWidth() / (WIDTH * 1.f);
         final float scaleFactorY = getHeight() / (HEIGHT * 1.f);
 
-
         if (canvas != null) {
             final int savedState = canvas.save();
-
 
             canvas.scale(scaleFactorX, scaleFactorY);
             bg.draw(canvas);
@@ -280,10 +291,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 explosion.draw(canvas);
             }
             drawText(canvas);
-
             canvas.restoreToCount(savedState);
-
-
         }
 
     }
@@ -328,7 +336,6 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void updateBottomBorder() {
-
         //every 40 points, insert randomly placed bottom blocks that break the pattern
         if (player.getScore() % 40 == 0) {
             botBorders.add(new BotBorder(BitmapFactory.decodeResource(getResources(), R.drawable.brick),
@@ -366,6 +373,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void newGame() {
+        // If the new score is better that the record, update and notify the hosting activity
+        if (player.getScore() > bestScore) {
+            bestScore = player.getScore();
+            if (mHighScoreListener != null)
+                mHighScoreListener.onHighScoreUpdated(bestScore);
+        }
 
         disappear = false;
         botBorders.clear();
@@ -373,16 +386,11 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         missiles.clear();
         smokePuffs.clear();
 
-
         minBorderHeight = 5;
         maxBorderHeight = 30;
         player.resetDY();
         player.resetScore();
         player.setY(HEIGHT / 2);
-
-        if (player.getScore() > best) {
-            best = player.getScore();
-        }
 
         //create initial borders
 
@@ -415,10 +423,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
             }
         }
-
         newGameCreated = true;
-
-
     }
 
     public void drawText(Canvas canvas) {
@@ -427,7 +432,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         paint.setTextSize(30);
         paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
         canvas.drawText("DISTANCE: " + (player.getScore() * 3), 10, HEIGHT - 10, paint);
-        canvas.drawText("BEST: " + (best * 3), WIDTH - 215, HEIGHT - 10, paint);
+        canvas.drawText("BEST: " + (bestScore * 3), WIDTH - 215, HEIGHT - 10, paint);
 
         if (!player.isPlaying() && newGameCreated && reset) {
             Paint paint1 = new Paint();
@@ -441,6 +446,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         }
     }
 
+    public void setHighScoreListener(HighScoreListener listener) {
+        this.mHighScoreListener = listener;
+    }
 
 }
 

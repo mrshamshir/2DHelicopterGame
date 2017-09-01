@@ -8,10 +8,10 @@ import android.graphics.Paint;
 
 public class SmokePuff extends GameObject {
 
-    public int r;
+    private int radius;
 
     public SmokePuff(int x, int y) {
-        this.r = 5;
+        this.radius = 5;
         super.x = x;
         super.y = y;
     }
@@ -25,9 +25,9 @@ public class SmokePuff extends GameObject {
         paint.setColor(Color.GRAY);
         paint.setStyle(Paint.Style.FILL);
 
-        canvas.drawCircle(x - r, y - r, r, paint);
-        canvas.drawCircle(x - r + 2, y - r - 2, r, paint);
-        canvas.drawCircle(x - r + 4, y - r + 1, r, paint);
+        canvas.drawCircle(x - radius, y - radius, radius, paint);
+        canvas.drawCircle(x - radius + 2, y - radius - 2, radius, paint);
+        canvas.drawCircle(x - radius + 4, y - radius + 1, radius, paint);
     }
 
 }
